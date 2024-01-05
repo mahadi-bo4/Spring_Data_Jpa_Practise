@@ -18,13 +18,13 @@ public class JpaTestApplication {
     CommandLineRunner commandLineRunner(StudentRepo studentRepo) {
         return args -> {
             Student ninNi = new Student(
-                    "Nin ",
+                    "Nin2",
                     "Ni",
                     "ninni@email.com",
                     18);
 
             Student ninNi2 = new Student(
-                    "Nin2 ",
+                    "Nin2",
                     "Ni",
                     "ninni2@email.com",
                     18);
@@ -76,9 +76,15 @@ public class JpaTestApplication {
 
 
             studentRepo
-                    .findStudentByFirstNameEqualsAndAgeEquals(
+                    .selectStudentWhereFirstNameAndAgeGreaterOrEquals(
                     "Nin2",
-                            22
+                            18
+                    ).forEach(System.out::println);
+
+            studentRepo
+                    .selectStudentWhereFirstNameAndAgeGreaterOrEqualsNative(
+                            "Nin2",
+                            18
                     ).forEach(System.out::println);
         };
     }
