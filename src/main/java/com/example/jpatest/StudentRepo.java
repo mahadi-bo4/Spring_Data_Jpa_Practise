@@ -1,15 +1,16 @@
 package com.example.jpatest;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface StudentRepo extends JpaRepository<Student, Long> {
 
-
-                             //JPQL Test
     @Query("select s from Student s where s.email= ?1")
     Optional<Student> findStudentByEmail(String email);
 
@@ -17,10 +18,15 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     List <Student> selectStudentWhereFirstNameAndAgeGreaterOrEquals(String firstName, Integer age);
 
 
-                              //Native Query Test
-    @Query(value = "select * from student where first_Name= ?1 and age>= ?2",
+    @Query(value = "select * from student where first_Name= :firstName and age>= :age",
             nativeQuery = true)
-    List <Student> selectStudentWhereFirstNameAndAgeGreaterOrEqualsNative(String firstName,
-                                                                          Integer age);
+    List <Student> selectStudentWhereFirstNameAndAgeGreaterOrEqualsNative(@Param("firstName") String firstName,
+                                                                          @Param("age") Integer age);
+
+
+    @Transactional
+    @Modifying
+    @Query("delete from Student s where s.id= ?1")
+    int deleteStudentByid(Long id);
 
 }
