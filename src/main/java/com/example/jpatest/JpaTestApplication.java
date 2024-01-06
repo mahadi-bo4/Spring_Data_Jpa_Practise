@@ -5,9 +5,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-
-import java.util.List;
 
 @SpringBootApplication
 public class JpaTestApplication {
@@ -22,15 +22,16 @@ public class JpaTestApplication {
         return args -> {
 
             getFakeStudent(studentRepo);
+//            sorting(studentRepo);
 
-            Sort sort = Sort.by("firstName").ascending()
-                    .and(Sort.by("age").descending());
+            PageRequest pageRequest = PageRequest.of(
+                    0,
+                    5,
+                    Sort.by("firstName").ascending()
+            );
 
-
-            studentRepo.findAll(sort)
-                    .forEach(student -> System.out.println(
-                            student.getFirstName() + " " + student.getAge())
-                    );
+            Page <Student> page = studentRepo.findAll(pageRequest);
+            System.out.println(page);
 
         };
     }
@@ -54,4 +55,16 @@ public class JpaTestApplication {
             studentRepo.save(student);
         }
     };
+
+    private void sorting(StudentRepo studentRepo){
+        Sort sort = Sort.by("firstName").ascending()
+                .and(Sort.by("age").descending());
+
+
+        studentRepo.findAll(sort)
+                .forEach(student -> System.out.println(
+                        student.getFirstName() + " " + student.getAge())
+                );
+
+    }
 }
