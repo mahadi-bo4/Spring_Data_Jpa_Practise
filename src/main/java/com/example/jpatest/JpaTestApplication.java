@@ -5,9 +5,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @SpringBootApplication
 public class JpaTestApplication {
@@ -20,19 +21,42 @@ public class JpaTestApplication {
     CommandLineRunner commandLineRunner(StudentRepo studentRepo) {
 
         return args -> {
+            Faker faker = new Faker();
+            String firstName = faker.name().firstName();
+            String lastName = faker.name().lastName();
+            String email = String.format("%s_%s@mahadiMail.com",firstName,lastName);
 
-            getFakeStudent(studentRepo);
-//            sorting(studentRepo);
-
-            PageRequest pageRequest = PageRequest.of(
-                    0,
-                    5,
-                    Sort.by("firstName").ascending()
+            Student student = new Student(
+                    firstName,
+                    lastName,
+                    email,
+                    faker.number().numberBetween(20, 55)
             );
 
-            Page <Student> page = studentRepo.findAll(pageRequest);
-            System.out.println(page);
+            student.addBook(
+                    new Book("Himu", LocalDateTime.now().minusYears(1L)));
 
+            student.addBook(
+                    new Book("Himu Asbe", LocalDateTime.now().minusWeeks(4L)));
+
+            student.addBook(
+                    new Book("Himu Ese Chole Gese", LocalDateTime.now().minusDays(4)));
+
+            StudentIdCard studentIdCard = new StudentIdCard("125454511", student);
+            student.setStudentIdCard(studentIdCard);
+            studentRepo.save(student);
+
+            studentRepo.findById(1L).ifPresent(s ->{
+                System.out.println("fetch book lazy...");
+                List<Book> books = student.getBooks();
+                books.forEach(book -> {
+                    System.out.println(s.getFirstName() + " Borrowed " + book.getBookName());
+                });
+            });
+//            studentIdCardRepo.findById(1L).ifPresent(System.out::println);
+
+//            studentIdCardRepo.deleteById(1L);
+//            studentRepo.deleteById(1L);
         };
     }
 
